@@ -18,7 +18,7 @@
 
 <project basedir="." default="dist" name="nailgun">
 	
-	<property name="version" value="0.7.1"/>
+	<property name="version" value="0.7.2"/>
 	<property name="jar" value="nailgun-${version}.jar"/>
 	<property name="jar.examples" value="nailgun-examples-${version}.jar"/>
 	<property name="zip.src" value="nailgun-src-${version}.zip"/>
@@ -99,24 +99,26 @@
 		<mkdir dir="${build.debug}"/>
 		<mkdir dir="${build.test}"/>
 
-		<javac destdir="${build.prod}" srcdir="${src.java.prod}">
+		<javac destdir="${build.prod}" srcdir="${src.java.prod}" target="1.4" source="1.4">
 		</javac>
 		<copy todir="${build.prod}">
 		    <fileset dir="${src.java.prod}" excludes="**/*.java"/>
 		</copy>
 
-		<javac destdir="${build.debug}" srcdir="${src.java.prod}" debug="yes">
+		<javac destdir="${build.debug}" srcdir="${src.java.prod}" debug="yes" target="1.4" source="1.4">
 		</javac>
 		<copy todir="${build.debug}">
 		    <fileset dir="${src.java.prod}" excludes="**/*.class"/>
 		</copy>
 		
+                
 		<javac destdir="${build.test}" srcdir="${src.java.test}">
         	<classpath >
         		<pathelement path="${build.prod}"/>
         		<path refid="tools.classpath"/>
 			</classpath>
 		</javac>
+                
 	</target>
 		
 	<target name="compile-client" depends="init">

@@ -63,11 +63,11 @@ class NGSessionPool {
 	 * Creates a new NGSessionRunner operating for the specified server, with
 	 * the specified number of threads
 	 * @param server the server to work for
-	 * @param poolSize the maximum number of idle threads to allow
+	 * @param poolsize the maximum number of idle threads to allow
 	 */
-	NGSessionPool(NGServer server, int maxIdle) {
+	NGSessionPool(NGServer server, int poolsize) {
 		this.server = server;
-		this.poolSize = maxIdle - 1;
+		this.poolSize = Math.min(0, poolsize);
 	
 		pool = new NGSession[poolSize];
 		poolEntries = 0;
@@ -97,14 +97,16 @@ class NGSessionPool {
 	 * @param session the NGSession to return to the pool
 	 */
 	void give(NGSession session) {
+            boolean shutdown = false;
+            synchronized(lock) {
 		if (done || poolEntries == poolSize) {
-			session.shutdown();
-		} else {
-			synchronized(lock) {
-				pool[poolEntries] = session;
-				++poolEntries;
-			}
+                    shutdown = true;
+                } else {
+                    pool[poolEntries] = session;
+                    ++poolEntries;
 		}
+            }
+            if (shutdown) session.shutdown();
 	}
 	
 	/**

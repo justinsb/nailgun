@@ -41,6 +41,11 @@ import com.martiansoftware.nailgun.builtins.DefaultNail;
  */
 public class NGServer implements Runnable {
 
+        /**
+         * Default size for thread pool
+         */
+        public static final int DEFAULT_SESSIONPOOLSIZE = 10;
+        
 	/**
 	 * The address on which to listen, or null to listen on all
 	 * local addresses
@@ -115,19 +120,35 @@ public class NGServer implements Runnable {
 	
 	/**
 	 * Creates a new NGServer that will listen at the specified address and
-	 * on the specified port.
+	 * on the specified port with the specified session pool size.
 	 * This does <b>not</b> cause the server to start listening.  To do
 	 * so, create a new <code>Thread</code> wrapping this <code>NGServer</code>
 	 * and start it.
 	 * @param addr the address at which to listen, or <code>null</code> to bind
 	 * to all local addresses
 	 * @param port the port on which to listen.
+         * @param sessionPoolSize the max number of idle sessions allowed by the pool
 	 */
-	public NGServer(InetAddress addr, int port) {
-		init(addr, port);
+	public NGServer(InetAddress addr, int port, int sessionPoolSize) {
+		init(addr, port, sessionPoolSize);
 	}
 	
 	/**
+	 * Creates a new NGServer that will listen at the specified address and
+	 * on the specified port with the default session pool size.
+	 * This does <b>not</b> cause the server to start listening.  To do
+	 * so, create a new <code>Thread</code> wrapping this <code>NGServer</code>
+	 * and start it.
+	 * @param addr the address at which to listen, or <code>null</code> to bind
+	 * to all local addresses
+	 * @param port the port on which to listen.
+         * @param sessionPoolSize the max number of idle sessions allowed by the pool
+	 */
+	public NGServer(InetAddress addr, int port) {
+		init(addr, port, DEFAULT_SESSIONPOOLSIZE);
+	}
+
+        /**
 	 * Creates a new NGServer that will listen on the default port
 	 * (defined in <code>NGConstants.DEFAULT_PORT</code>).
 	 * This does <b>not</b> cause the server to start listening.  To do
@@ -135,15 +156,16 @@ public class NGServer implements Runnable {
 	 * and start it.
 	 */
 	public NGServer() {
-		init(null, NGConstants.DEFAULT_PORT);
+		init(null, NGConstants.DEFAULT_PORT, DEFAULT_SESSIONPOOLSIZE);
 	}
 	
 	/**
 	 * Sets up the NGServer internals
 	 * @param addr the InetAddress to bind to
 	 * @param port the port on which to listen
+         * @param sessionPoolSize the max number of idle sessions allowed by the pool
 	 */
-	private void init(InetAddress addr, int port) {
+	private void init(InetAddress addr, int port, int sessionPoolSize) {
 		this.addr = addr;
 		this.port = port;
 		
@@ -151,7 +173,7 @@ public class NGServer implements Runnable {
 		allNailStats = new java.util.HashMap();
 		// allow a maximum of 10 idle threads.  probably too high a number
 		// and definitely should be configurable in the future
-		sessionPool = new NGSessionPool(this, 10);
+		sessionPool = new NGSessionPool(this, sessionPoolSize);
 	}
 
 	/**
@@ -443,7 +465,7 @@ public class NGServer implements Runnable {
 			}
 		}
 
-		NGServer server = new NGServer(serverAddress, port);
+		NGServer server = new NGServer(serverAddress, port, DEFAULT_SESSIONPOOLSIZE);
 		Thread t = new Thread(server);
 		t.setName("NGServer(" + serverAddress + ", " + port + ")");
 		t.start();
