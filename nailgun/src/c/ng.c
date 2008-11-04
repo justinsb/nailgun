@@ -470,7 +470,7 @@ void usage(int exitcode) {
 }
 
 int main(int argc, char *argv[], char *env[]) {
-  int i;
+  int i, optval;
   struct sockaddr_in server_addr;
   char *nailgun_server;        /* server as specified by user */
   char *nailgun_port;          /* port as specified by user */
@@ -561,6 +561,11 @@ int main(int argc, char *argv[], char *env[]) {
 
   if ((nailgunsocket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
     perror("socket");
+    cleanUpAndExit(NAILGUN_SOCKET_FAILED);
+  }
+  optval = 1;
+  if (setsockopt(nailgunsocket, SOL_SOCKET, SO_KEEPALIVE, &optval, sizeof(optval)) < 0) {
+    perror("setsockopt");
     cleanUpAndExit(NAILGUN_SOCKET_FAILED);
   }
 
