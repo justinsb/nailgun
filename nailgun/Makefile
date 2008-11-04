@@ -1,12 +1,13 @@
 # This Makefile has only been tested on linux.  It uses
 # MinGW32 to cross-compile for windows.  To install and
-# configure MinGW32 on linux, see
-# http://www.mingw.org/MinGWiki/index.php/BuildMingwCross
-#
-# Marty Lamb
+# configure MinGW32 on linux, see http://www.mingw.org
+
+
+# This is where the mingw32 compiler exists in Ubuntu 8.04.
+# Your compiler location may vary.
+WIN32_CC=/usr/bin/i586-mingw32msvc-gcc
 
 CC=gcc
-WIN32_CC=/usr/local/mingw32/bin/mingw32-gcc
 CFLAGS=-Wall -pedantic -s -O3
 
 ng: src/c/ng.c
