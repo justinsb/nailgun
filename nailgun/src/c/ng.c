@@ -564,7 +564,7 @@ int main(int argc, char *argv[], char *env[]) {
     cleanUpAndExit(NAILGUN_SOCKET_FAILED);
   }
   optval = 1;
-  if (setsockopt(nailgunsocket, SOL_SOCKET, SO_KEEPALIVE, &optval, sizeof(optval)) < 0) {
+  if (setsockopt(nailgunsocket, SOL_SOCKET, SO_KEEPALIVE, (void *) &optval, sizeof(optval)) < 0) {
     perror("setsockopt");
     cleanUpAndExit(NAILGUN_SOCKET_FAILED);
   }
