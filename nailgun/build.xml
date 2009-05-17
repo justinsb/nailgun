@@ -228,4 +228,13 @@
 			<zipfileset dir="dist" prefix="nailgun-${version}" includes="${jar},${jar.examples}"/>
 		</zip>
 	</target>
+
+    <target name="run" depends="compile-server">
+        <java classname="com.martiansoftware.nailgun.NGServer">
+            <classpath>
+				<pathelement location="${build.prod}"/>
+            </classpath>
+        </java>
+    </target>
+
 </project>
