@@ -18,6 +18,8 @@
 
 package com.martiansoftware.nailgun;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 
@@ -29,17 +31,23 @@ import java.io.IOException;
  */
 class NGInputStream extends FilterInputStream {
 
-	private byte[] header;
+    private DataInputStream din;
 	private boolean eof = false;
 	private long remaining = 0;
-	
+    private byte[] oneByteBuffer = null;
+    private final DataOutputStream out;
+    private boolean started = false;
+        
 	/**
 	 * Creates a new NGInputStream wrapping the specified InputStream
 	 * @param in the InputStream to wrap
+         * @param out the OutputStream to which a STARTINPUT chunk should
+         * be sent prior to the first read.
 	 */
-	public NGInputStream(java.io.InputStream in) {
+	public NGInputStream(java.io.InputStream in, DataOutputStream out) {
 		super(in);
-		header = new byte[5];
+        din = (DataInputStream) this.in;
+        this.out = out;
 	}
 
 	/**
@@ -50,27 +58,19 @@ class NGInputStream extends FilterInputStream {
 	 */
 	private void readHeader() throws IOException {
 		if (eof) return;
-		
-		int bytesRead = in.read(header);
-		int thisPass = 0;
-		while (bytesRead < 5) {
-			thisPass = in.read(header, bytesRead, 5 - bytesRead);
-			if (thisPass < 0) {
-				eof = true;
-				return;
-			}
-			bytesRead += thisPass;
-		}
-		switch(header[4]) {
+
+        int hlen = din.readInt();
+        byte chunkType = din.readByte();
+		switch(chunkType) {
 			case NGConstants.CHUNKTYPE_STDIN:
-						remaining = LongUtils.fromArray(header, 0);
+						remaining = hlen;
 						break;
 						
 			case NGConstants.CHUNKTYPE_STDIN_EOF:
 						eof = true;
 						break;
 						
-			default:	throw(new IOException("Unknown stream type: " + (char) header[4]));
+			default:	throw(new IOException("Unknown stream type: " + (char) chunkType));
 		}		
 	}
 	
@@ -94,10 +94,8 @@ class NGInputStream extends FilterInputStream {
 	 * @see java.io.InputStream#read()
 	 */
 	public int read() throws IOException {
-		// this should be more readable.
-		// this stomps on the first byte of the header array,
-		// which is ok
-		return((read(header, 0, 1) == -1) ? -1 : (int) header[0]);
+        if (oneByteBuffer == null) oneByteBuffer = new byte[1];
+        return((read(oneByteBuffer, 0, 1) == -1) ? -1 : (int) oneByteBuffer[0]);
 	}
 	
 	/**
@@ -111,6 +109,14 @@ class NGInputStream extends FilterInputStream {
 	 * @see java.io.InputStream.read(byte[],offset,length)
 	 */
 	public int read(byte[] b, int offset, int length) throws IOException {
+        if (!started) {
+            synchronized(out) {
+                out.writeInt(0);
+                out.writeByte(NGConstants.CHUNKTYPE_STARTINPUT);
+                out.flush();
+                started = true;
+            }
+        }
 		if (remaining == 0) readHeader();
 		if (eof) return(-1);
 

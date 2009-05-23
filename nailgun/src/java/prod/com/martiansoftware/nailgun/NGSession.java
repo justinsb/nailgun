@@ -18,6 +18,8 @@
 
 package com.martiansoftware.nailgun;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
@@ -178,10 +180,8 @@ class NGSession extends Thread {
 		Socket socket = nextSocket();
 		while (socket != null) {
 			try {
-				// buffer for reading headers
-				byte[] lbuf = new byte[5];
-				java.io.DataInputStream sockin = new java.io.DataInputStream(socket.getInputStream());
-				java.io.OutputStream sockout = socket.getOutputStream();
+				DataInputStream sockin = new DataInputStream(socket.getInputStream());
+				DataOutputStream sockout = new DataOutputStream(socket.getOutputStream());
 	
 				// client info - command line arguments and environment
 				List remoteArgs = new java.util.ArrayList();
@@ -192,9 +192,8 @@ class NGSession extends Thread {
 				
 				// read everything from the client up to and including the command
 				while (command == null) {
-					sockin.readFully(lbuf);
-					long bytesToRead = LongUtils.fromArray(lbuf, 0);
-					char chunkType = (char) lbuf[4];
+                    int bytesToRead = sockin.readInt();
+                    byte chunkType = sockin.readByte();
 					
 					byte[] b = new byte[(int) bytesToRead];
 					sockin.readFully(b);
@@ -237,7 +236,7 @@ class NGSession extends Thread {
 				// can't create NGInputStream until we've received a command, because at
 				// that point the stream from the client will only include stdin and stdin-eof
 				// chunks
-				InputStream in = new NGInputStream(sockin);
+				InputStream in = new NGInputStream(sockin, sockout);
 				PrintStream out = new PrintStream(new NGOutputStream(sockout, NGConstants.CHUNKTYPE_STDOUT));
 				PrintStream err = new PrintStream(new NGOutputStream(sockout, NGConstants.CHUNKTYPE_STDERR));
 				PrintStream exit = new PrintStream(new NGOutputStream(sockout, NGConstants.CHUNKTYPE_EXIT));
@@ -309,7 +308,8 @@ class NGSession extends Thread {
 					t.printStackTrace();
 					exit.println(NGConstants.EXIT_EXCEPTION); // remote exception constant
 				}
-				
+
+                sockout.flush();
 				socket.close();
 	
 			} catch (Throwable t) {

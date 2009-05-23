@@ -45,48 +45,58 @@ public class NGConstants {
 	/**
 	 * Chunk type marker for command line arguments
 	 */
-	public static final char CHUNKTYPE_ARGUMENT = 'A';
+	public static final byte CHUNKTYPE_ARGUMENT = 'A';
 
 	/**
 	 * Chunk type marker for client environment variables
 	 */
-	public static final char CHUNKTYPE_ENVIRONMENT = 'E';
+	public static final byte CHUNKTYPE_ENVIRONMENT = 'E';
 	
 	/**
 	 * Chunk type marker for the command (alias or class)
 	 */
-	public static final char CHUNKTYPE_COMMAND = 'C';
+	public static final byte CHUNKTYPE_COMMAND = 'C';
 	
 	/**
 	 * Chunk type marker for client working directory
 	 */	
-	public static final char CHUNKTYPE_WORKINGDIRECTORY = 'D';
+	public static final byte CHUNKTYPE_WORKINGDIRECTORY = 'D';
 	
 	/**
 	 * Chunk type marker for stdin
 	 */
-	public static final char CHUNKTYPE_STDIN = '0';
+	public static final byte CHUNKTYPE_STDIN = '0';
 
 	/**
 	 * Chunk type marker for the end of stdin
 	 */
-	public static final char CHUNKTYPE_STDIN_EOF = '.';
+	public static final byte CHUNKTYPE_STDIN_EOF = '.';
 
 	/**
 	 * Chunk type marker for stdout
 	 */
-	public static final char CHUNKTYPE_STDOUT = '1';
+	public static final byte CHUNKTYPE_STDOUT = '1';
 	
 	/**
 	 * Chunk type marker for stderr
 	 */	
-	public static final char CHUNKTYPE_STDERR = '2';
+	public static final byte CHUNKTYPE_STDERR = '2';
 	
 	/**
 	 * Chunk type marker for client exit chunks
 	 */	
-	public static final char CHUNKTYPE_EXIT = 'X';
-	
+	public static final byte CHUNKTYPE_EXIT = 'X';
+
+    /**
+     * Chunk type marker for a "startinput" chunk.
+     * This chunk type is sent from the server to the client and indicates
+     * that the client should begin sending stdin to the server.  It
+     * is automatically sent the first time the client's inputstream
+     * is read.
+     */
+    public static final byte CHUNKTYPE_STARTINPUT = 'S';
+
+
 	/**
 	 * Server version number
 	 */

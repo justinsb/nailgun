@@ -30,21 +30,22 @@ import java.io.IOException;
  * 
  * @author <a href="http://www.martiansoftware.com/contact.html">Marty Lamb</a>
  */
-class NGOutputStream extends java.io.FilterOutputStream {
+class NGOutputStream extends java.io.DataOutputStream {
 
-	private byte[] header;
-	
+	private final Object lock;
+    private byte streamCode;
+
 	/**
 	 * Creates a new NGOutputStream wrapping the specified
 	 * OutputStream and using the specified Nailgun chunk code.
 	 * @param out the OutputStream to wrap
-	 * @param code the NailGun chunk code associated with this
+	 * @param streamCode the NailGun chunk code associated with this
 	 * stream (i.e., '1' for stdout, '2' for stderr).
 	 */
-	public NGOutputStream(java.io.OutputStream out, char code) {
+	public NGOutputStream(java.io.OutputStream out, byte streamCode) {
 		super(out);
-		header = new byte[5];
-		header[4] = (byte) code;
+        this.lock = out;
+        this.streamCode = streamCode;
 	}
 	
 	/**
@@ -66,11 +67,11 @@ class NGOutputStream extends java.io.FilterOutputStream {
 	 * @see java.io.OutputStream.write(byte[],int,int)
 	 */
 	public void write(byte[] b, int offset, int len) throws IOException {
-		LongUtils.toArray(len, header, 0);
-		synchronized(out) {
-			out.write(header, 0, 5);
+		synchronized(lock) {
+            writeInt(len);
+            writeByte(streamCode);
 			out.write(b, offset, len);
 		}
-		out.flush();
+		flush();
 	}
 }

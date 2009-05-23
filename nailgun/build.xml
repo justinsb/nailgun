@@ -18,7 +18,7 @@
 
 <project basedir="." default="dist" name="nailgun">
 	
-	<property name="version" value="0.7.2"/>
+	<property name="version" value="0.9.0"/>
 	<property name="jar" value="nailgun-${version}.jar"/>
 	<property name="jar.examples" value="nailgun-examples-${version}.jar"/>
 	<property name="zip.src" value="nailgun-src-${version}.zip"/>
@@ -114,7 +114,7 @@
                 
 		<javac destdir="${build.test}" srcdir="${src.java.test}">
         	<classpath >
-        		<pathelement path="${build.prod}"/>
+        		<pathelement path="${build.debug}"/>
         		<path refid="tools.classpath"/>
 			</classpath>
 		</javac>
