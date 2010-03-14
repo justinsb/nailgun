@@ -249,7 +249,7 @@ int sendFileArg(char *filename) {
  * @param text the null-terminated string to send
  */
 void sendText(char chunkType, char *text) {
-  int len = strlen(text);
+  int len = text ? strlen(text) : 0;
   sendHeader(len, chunkType);
   sendAll(nailgunsocket, text, len);
 }
