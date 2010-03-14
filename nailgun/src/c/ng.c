@@ -96,6 +96,13 @@
 #define CHUNKTYPE_EXIT 'X'
 #define CHUNKTYPE_STARTINPUT 'S'
 
+/*
+   the following is required to compile for hp-ux
+   originally posted at http://jira.codehaus.org/browse/JRUBY-2346
+*/
+#ifndef MSG_WAITALL
+#define MSG_WAITALL 0x40 /* wait for full request or error */
+#endif
 
 /* the socket connected to the nailgun server */
 int nailgunsocket = 0;
