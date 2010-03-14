@@ -15,13 +15,13 @@ ng: src/c/ng.c
 	${CC} ${CFLAGS} -o ng src/c/ng.c
 
 ng.exe: src/c/ng.c
-	# any idea why the command line is so sensitive to the order of
-	# the arguments?  If CFLAGS is at the beginning, it won't link.
 	${WIN32_CC} -o ng.exe src/c/ng.c -lwsock32 -O3 ${CFLAGS}
+# any idea why the command line is so sensitive to the order of
+# the arguments?  If CFLAGS is at the beginning, it won't link.
 	
 clean:
 	@echo "If you have a Windows binary, 'make clean' won't delete it."
 	@echo "You must remove this manually.  Most users won't have MinGW"
-	@echo "installed - so I'd rather not delete something they can't rebuild."
+	@echo "installed - so I'd rather not delete something you can't rebuild."
 	rm ng
 #	rm ng.exe
