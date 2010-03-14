@@ -271,6 +271,8 @@ void recvToFD(HANDLE destFD, char *buf, unsigned long len) {
     int thisPass = 0;
     
     thisPass = recv(nailgunsocket, buf, bytesToRead, MSG_WAITALL);
+    if (thisPass < bytesToRead) handleSocketClose();
+    
    
     bytesRead += thisPass;
 
